@@ -1,0 +1,70 @@
+load("@rules_kubebuilder//controller-gen:controller-gen-toolchain.bzl", "controller_gen_toolchain")
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
+
+exports_files(
+    [
+        "bin/controller-gen.linux",
+        "bin/controller-gen.darwin",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = glob([
+        "*.bzl",
+        "**/*.bzl",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+pkg_tar(
+    name = "release-bin",
+    srcs = glob(["bin/*"]),
+    package_dir = "/bin",
+)
+
+pkg_tar(
+    name = "release",
+    srcs = [
+        "BUILD.bazel",
+        ":srcs",
+    ],
+    package_dir = "controller-gen",
+    visibility = ["//visibility:public"],
+    deps = [":release-bin"],
+)
+
+toolchain_type(name = "toolchain")
+
+controller_gen_toolchain(
+    name = "controller_gen_linux",
+    controller_gen_bin = "@rules_kubebuilder//controller-gen:bin/controller-gen.linux",
+)
+
+controller_gen_toolchain(
+    name = "controller_gen_darwin",
+    controller_gen_bin = "@rules_kubebuilder//controller-gen:bin/controller-gen.darwin",
+)
+
+toolchain(
+    name = "controller_gen_linux_toolchain",
+    exec_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    toolchain = ":controller_gen_linux",
+    toolchain_type = ":toolchain",
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "controller_gen_darwin_toolchain",
+    exec_compatible_with = [
+        "@platforms//os:osx",
+        "@platforms//cpu:x86_64",
+    ],
+    toolchain = ":controller_gen_darwin",
+    toolchain_type = ":toolchain",
+    visibility = ["//visibility:public"],
+)

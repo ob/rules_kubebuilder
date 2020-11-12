@@ -1,0 +1,70 @@
+load("@rules_kubebuilder//kustomize:kustomize-toolchain.bzl", "kustomize_toolchain")
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
+
+exports_files(
+    [
+        "bin/kustomize.linux",
+        "bin/kustomize.darwin",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = glob([
+        "*.bzl",
+        "**/*.bzl",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+pkg_tar(
+    name = "release-bin",
+    srcs = glob(["bin/*"]),
+    package_dir = "/bin",
+)
+
+pkg_tar(
+    name = "release",
+    srcs = [
+        "BUILD.bazel",
+        ":srcs",
+    ],
+    package_dir = "kustomize",
+    visibility = ["//visibility:public"],
+    deps = [":release-bin"],
+)
+
+toolchain_type(name = "toolchain")
+
+kustomize_toolchain(
+    name = "kustomize_linux",
+    kustomize_bin = "@rules_kubebuilder//kustomize:bin/kustomize.linux",
+)
+
+kustomize_toolchain(
+    name = "kustomize_darwin",
+    kustomize_bin = "@rules_kubebuilder//kustomize:bin/kustomize.darwin",
+)
+
+toolchain(
+    name = "kustomize_linux_toolchain",
+    exec_compatible_with = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+    toolchain = ":kustomize_linux",
+    toolchain_type = ":toolchain",
+    visibility = ["//visibility:public"],
+)
+
+toolchain(
+    name = "kustomize_darwin_toolchain",
+    exec_compatible_with = [
+        "@platforms//os:osx",
+        "@platforms//cpu:x86_64",
+    ],
+    toolchain = ":kustomize_darwin",
+    toolchain_type = ":toolchain",
+    visibility = ["//visibility:public"],
+)

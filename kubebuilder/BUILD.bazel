@@ -1,0 +1,32 @@
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
+
+exports_files(
+    [
+        "kubebuilder-runner.sh.template",
+        "kubebuilder_pwd.bash.in",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = glob([
+        "*.bzl",
+        "**/*.bzl",
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "allfiles",
+    srcs = glob(["**/*"]),
+)
+
+pkg_tar(
+    name = "release",
+    srcs = [
+        ":allfiles",
+    ],
+    package_dir = "kubebuilder",
+    visibility = ["//visibility:public"],
+)

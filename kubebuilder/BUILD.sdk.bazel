@@ -1,0 +1,16 @@
+load("@rules_kubebuilder//kubebuilder:sdk.bzl", "kubebuilder_pwd")
+
+exports_files([
+    "bin/etcd",
+    "bin/kube-apiserver",
+    "bin/kubebuilder",
+    "bin/kubectl",
+])
+
+kubebuilder_pwd(
+    name = "pwd",
+    srcs = [
+        "bin/kubebuilder",
+    ],
+    kubebuilder_binary = "bin/kubebuilder",
+)

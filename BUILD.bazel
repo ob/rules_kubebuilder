@@ -1,0 +1,22 @@
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
+load("@rules_kubebuilder//kubebuilder:def.bzl", "kubebuilder")
+
+pkg_tar(
+    name = "release",
+    srcs = glob([
+        "*.bazel",
+        "*.bzl",
+    ]) + [
+        "WORKSPACE",
+    ],
+    extension = "tar.gz",
+    package_dir = "rules_kubebuilder",
+    deps = [
+        "//controller-gen:release",
+        "//kubebuilder:release",
+        "//kustomize:release",
+    ],
+)
+
+# This is just an example of how to run kubebuilder via bazel
+kubebuilder(name = "kubebuilder")

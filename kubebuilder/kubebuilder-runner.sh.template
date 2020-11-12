@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+KUBEBUILDER_SHORT_PATH="@@KUBEBUILDER_SHORT_PATH@@"
+
+kubebuilder_short_path=$(readlink $KUBEBUILDER_SHORT_PATH)
+
+cd "$BUILD_WORKSPACE_DIRECTORY" && "$kubebuilder_short_path" "$@"
