@@ -5,14 +5,25 @@ These bazel rules download and make available the [Kubebuilder SDK](https://gith
 To use these rules, add the following to your `WORKSPACE` file:
 
 ```
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
 git_repository(
     name = "rules_kubebuilder",
-    remote = "https://github.com/ob/rules_kubebuilder",
+    branch = "main",
+    remote = "https://github.com/ob/rules_kubebuilder.git",
 )
 
 load("@rules_kubebuilder//kubebuilder:sdk.bzl", "kubebuilder_register_sdk")
 
 kubebuilder_register_sdk(version = "2.3.1")
+
+load("@rules_kubebuilder//controller-gen:deps.bzl", "controller_gen_register_toolchain")
+
+controller_gen_register_toolchain()
+
+load("@rules_kubebuilder//kustomize:deps.bzl", "kustomize_register_toolchain")
+
+kustomize_register_toolchain()
 ```
 
 And in your `go_test()` files, add `etcd` as a data dependency like this:
