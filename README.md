@@ -4,7 +4,7 @@ These bazel rules download and make available the [Kubebuilder SDK](https://gith
 
 To use these rules, add the following to your `WORKSPACE` file:
 
-```
+```starlark
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
@@ -28,7 +28,7 @@ kustomize_register_toolchain()
 
 And in your `go_test()` files, add `etcd` as a data dependency like this:
 
-```
+```starlark
 go_test(
     name = "go_default_test",
     srcs = ["apackage_test.go"],
@@ -42,28 +42,28 @@ go_test(
 ```
 You'll need to run the test as:
 
-```
+```shell
 bazel test --test_env=KUBEBUILDER_ASSETS=$(bazel info execution_root 2>/dev/null)/$(bazel run @kubebuilder_sdk//:pwd 2>/dev/null) //...
 ```
 
 You can also add the following to `BUILD.bazel` at the root of your workspace:
 
-```
+```starlark
 load("@rules_kubebuilder//kubebuilder:def.bzl", "kubebuilder")
 kubebuilder(name = "kubebuilder")
 ```
 
 to be able to run `kubebuilder` like so:
 
-```
-$ bazel run //:kubebuilder -- --help
+```shell
+bazel run //:kubebuilder -- --help
 ```
 
 ## Controller-gen
 
 In order to use `controller-gen` you will need to do something like the following in your `api/v1alpha1` directory (essentially where the `*_type.go` files are):
 
-```
+```starlark
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load(
     "@rules_kubebuilder//controller-gen:controller-gen.bzl",
@@ -126,8 +126,8 @@ they can be used. Fortunately Go supports cross compiling so in order to build t
 need to get and install Go either from [their download page](https://golang.org/doc/install) or from
 homebrew by running
 
-```
-$ brew install golang
+```shell
+brew install golang
 ```
 
 After that you can run the script in `scripts/build-controller-gen.sh` which will compile `controller-gen`
