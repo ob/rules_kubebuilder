@@ -6,19 +6,13 @@ load(
     "SDK_VERSION_SHA256",
 )
 
-ARCH_MAP = {
-    "linux_amd64": "linux-x86_64",
-    "darwin_amd64": "darwin-x86_64",
-}
-
 def _kubebuilder_download_sdk_impl(ctx):
     platform = _detect_host_platform(ctx)
     version = ctx.attr.version
     if version not in SDK_VERSION_SHA256:
         fail("Unknown version {}".format(version))
     sha256 = SDK_VERSION_SHA256[version][platform]
-    li_platform = ARCH_MAP[platform]
-    urls = [url.format(version = version, platform = li_platform) for url in ctx.attr.urls]
+    urls = [url.format(version = version, platform = platform) for url in ctx.attr.urls]
     strip_prefix = ctx.attr.strip_prefix.format(version = version, platform = platform)
     ctx.download_and_extract(
         url = urls,
