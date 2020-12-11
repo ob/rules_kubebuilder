@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-VERSION="0.3.0"
+VERSION="0.4.1"
 
 ROOT=$(git rev-parse --show-toplevel)
 DEST="$ROOT/controller-gen/bin"
