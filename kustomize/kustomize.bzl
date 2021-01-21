@@ -6,9 +6,6 @@ def _kustomize_impl(ctx):
     tmpdir = ctx.actions.declare_directory(ctx.label.name + ".tmp")
     kustomize_info = ctx.toolchains["@rules_kubebuilder//kustomize:toolchain"].kustomize_info
 
-    args = ctx.actions.args()
-    args.add_all(ctx.files.srcs)
-
     ctx.actions.run_shell(
         mnemonic = "Kustomize",
         outputs = [output, tmpdir],
