@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-VERSION="0.4.1"
+VERSION="0.8.0"
 
 ROOT=$(git rev-parse --show-toplevel)
 DEST="$ROOT/controller-gen/bin"
@@ -11,7 +11,7 @@ test -d "$ROOT/build/tmp" && rm -rf "$ROOT/build/tmp"
 mkdir -p "$ROOT/build/tmp"
 cd "$ROOT/build/tmp"
 
-# Fetch and unpack v0.3.0
+# Fetch and unpack v0.8.0
 echo "Downloading and extracting controller-tools version $VERSION"
 curl -sL "https://github.com/kubernetes-sigs/controller-tools/archive/v${VERSION}.tar.gz" | tar xfz -
 
