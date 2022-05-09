@@ -2,10 +2,10 @@
 
 set -euo pipefail
 
-VERSION="3.8.4"
+VERSION="4.5.4"
 
 ROOT=$(git rev-parse --show-toplevel)
-DEST="$ROOT/km/bin"
+DEST="$ROOT/kustomize/bin"
 
 mkdir -p "$ROOT/build/tmp"
 cd "$ROOT/build/tmp"
