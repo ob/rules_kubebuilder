@@ -3,7 +3,6 @@
 DEFAULT_VERSION = "2.3.1"
 
 SDK_VERSION_SHA256 = {
-    {
     "3.5.0": {
         "linux_amd64": "271e59de861684156515b8aa53eafa0cd242017595652c52a072b1812bbd3775",
         "darwin_amd64": "b75c1f1532fc27187097f9ccb6c4d8e8ea751e7e9a238a1c1f2c58b171eadad7"
