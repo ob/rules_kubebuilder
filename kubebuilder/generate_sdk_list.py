@@ -20,6 +20,9 @@ def main():
 
 
 def fetch_release_items():
+    if "GH_ACCESS_TOKEN" not in os.environ:
+        print("You need to get an access token following the instructions in \n https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token")
+        exit(1)
     access_token = os.getenv("GH_ACCESS_TOKEN")
     releases_response = requests.get('https://api.github.com/repos/kubernetes-sigs/kubebuilder/releases', headers={
         "Accept": "application/vnd.github+json",
@@ -34,9 +37,9 @@ def fetch_release_items():
             checksum_asset["browser_download_url"])
         checksum_dic = checksum_text_to_dic(checksum_response.text)
         linux_amd64_key = get_key_containing(
-            checksum_dic.keys(), "linux_amd64")
+            list(checksum_dic.keys()), "linux_amd64")
         darwin_amd64_key = get_key_containing(
-            checksum_dic.keys(), "darwin_amd64")
+            list(checksum_dic.keys()), "darwin_amd64")
 
         items.append(ReleaseItem(
             release["tag_name"], checksum_dic[linux_amd64_key], checksum_dic[darwin_amd64_key]))
