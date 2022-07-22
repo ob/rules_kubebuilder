@@ -13,4 +13,5 @@ kubebuilder_pwd(
         "bin/kubebuilder",
     ],
     kubebuilder_binary = "bin/kubebuilder",
+    visibility = ["//visibility:public"],
 )
