@@ -12,7 +12,11 @@ def _kubebuilder_download_sdk_impl(ctx):
     if version not in SDK_VERSION_SHA256:
         fail("Unknown version {}".format(version))
     sha256 = SDK_VERSION_SHA256[version][platform]
-    urls = [url.format(version = version, platform = platform) for url in ctx.attr.urls]
+
+    if version[0] >= "3":
+        urls = f"https://github.com/kubernetes-sigs/kubebuilder/releases/download/v{version}/kubebuilder_{platform}"
+    else:
+        urls = [url.format(version = version, platform = platform) for url in ctx.attr.urls]
     strip_prefix = ctx.attr.strip_prefix.format(version = version, platform = platform)
     ctx.download_and_extract(
         url = urls,
