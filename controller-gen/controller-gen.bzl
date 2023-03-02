@@ -195,7 +195,8 @@ _controller_gen_rbac = rule(
     implementation = _controller_gen_rbac_impl,
     attrs = _rbac_extra_attrs(),
     toolchains = _toolchains(),
-    doc = "Run the role binding generator part of controller-gen",
+    doc = "Run the role binding generating portion of controller-gen. ",
+          "The output directory will be `rbac`.",
 )
 
 _controller_gen_webhook = rule(
