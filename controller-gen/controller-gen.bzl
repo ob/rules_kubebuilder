@@ -201,7 +201,7 @@ _controller_gen_rbac = rule(
 
 _controller_gen_webhook = rule(
     implementation = _controller_gen_webhook_impl,
-    attrs = _webhook_extra_args(),
+    attrs = _webhook_extra_attrs(),
     toolchains = _toolchains(),
     doc = "Run the webhook generating portion of controller-gen. " +
           "The output directory will be the name of the rule.",
