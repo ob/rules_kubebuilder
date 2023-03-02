@@ -112,6 +112,15 @@ def _controller_gen_rbac_impl(ctx):
         files = depset([outputdir]),
     )
 
+def _controller_gen_webhook_impl(ctx):
+    outputdir = ctx.actions.declare_directory(ctx.label.name)
+
+    _controller_gen_action(ctx, "webhook", [outputdir], outputdir.path)
+
+    return DefaultInfo(
+        files = depset([outputdir]),
+    )
+
 COMMON_ATTRS = {
     "srcs": attr.label_list(
         allow_empty = False,
@@ -146,13 +155,17 @@ def _crd_extra_attrs():
     })
     return ret
 
-def _rbac_extra_args():
+def _rbac_extra_attrs():
     ret = COMMON_ATTRS
     ret.update({
         "roleName": attr.string(
             default = "manager-role",
         ),
     })
+    return ret
+
+def _webhook_extra_attrs():
+    ret = COMMON_ATTRS
     return ret
 
 def _toolchains():
@@ -173,16 +186,24 @@ _controller_gen_object = rule(
     implementation = _controller_gen_object_impl,
     attrs = COMMON_ATTRS,
     toolchains = _toolchains(),
-    doc = "Run the code generation part of controller-gen. " +
+    doc = "Run the code generating portion of controller-gen. " +
           "You can use the name of this rule as part of the `srcs` attribute " +
           " of a `go_library` rule.",
 )
 
 _controller_gen_rbac = rule(
     implementation = _controller_gen_rbac_impl,
-    attrs = _rbac_extra_args(),
+    attrs = _rbac_extra_attrs(),
     toolchains = _toolchains(),
     doc = "Run the role binding generator part of controller-gen",
+)
+
+_controller_gen_webhook = rule(
+    implementation = _controller_gen_webhook_impl,
+    attrs = _webhook_extra_args(),
+    toolchains = _toolchains(),
+    doc = "Run the webhook generating portion of controller-gen. " +
+          "The output directory will be the name of the rule.",
 )
 
 def _maybe_add_gopath_dep(name, kwargs):
@@ -206,3 +227,7 @@ def controller_gen_object(name, **kwargs):
 def controller_gen_rbac(name, **kwargs):
     _maybe_add_gopath_dep(name, kwargs)
     _controller_gen_rbac(name = name, **kwargs)
+    
+def controller_gen_webhook(name, **kwargs):
+    _maybe_add_gopath_dep(name, kwargs)
+    _controller_gen_webhook(name = name, **kwargs)
