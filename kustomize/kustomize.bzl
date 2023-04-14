@@ -4,7 +4,7 @@
 def _kustomize_impl(ctx):
     output = ctx.actions.declare_file(ctx.label.name + ".yaml")
     tmpdir = ctx.actions.declare_directory(ctx.label.name + ".tmp")
-    kustomize_info = ctx.toolchains["@rules_kubebuilder//kustomize:toolchain"].kustomize_info
+    kustomize_info = ctx.toolchains["@rules_kubebuilder//kustomize:toolchain_type"].kustomize_info
 
     ctx.actions.run_shell(
         mnemonic = "Kustomize",
@@ -12,7 +12,7 @@ def _kustomize_impl(ctx):
         inputs = ctx.files.srcs,
         command = """
         mkdir -p {tmp_path} &&
-        cp {srcs} {tmp_path} &&
+        cp -RL {srcs} {tmp_path} &&
         {kustomize} build {tmp_path} > {output}
         """.format(
             kustomize = kustomize_info.kustomize_bin.path,
@@ -40,7 +40,7 @@ kustomize = rule(
         ),
     },
     toolchains = [
-        "@rules_kubebuilder//kustomize:toolchain",
+        "@rules_kubebuilder//kustomize:toolchain_type",
     ],
     doc = "",
 )
