@@ -11,6 +11,7 @@ class ReleaseItem:
     version: str
     linux_amd64_checksum: str
     darwin_amd64_checksum: str
+    darwin_arm64_checksum: str
 
 
 def main():
@@ -39,9 +40,15 @@ def fetch_release_items():
             list(checksum_dic.keys()), "linux_amd64")
         darwin_amd64_key = get_key_containing(
             list(checksum_dic.keys()), "darwin_amd64")
+        darwin_arm64_key = get_key_containing(
+            list(checksum_dic.keys()), "darwin_arm64")
 
-        items.append(ReleaseItem(
-            release["tag_name"], checksum_dic[linux_amd64_key], checksum_dic[darwin_amd64_key]))
+        if darwin_arm64_key:
+            items.append(ReleaseItem(
+                release["tag_name"], checksum_dic[linux_amd64_key], checksum_dic[darwin_amd64_key], checksum_dic[darwin_arm64_key]))
+        else:
+            items.append(ReleaseItem(
+                release["tag_name"], checksum_dic[linux_amd64_key], checksum_dic[darwin_amd64_key], None))
 
     return items
 
@@ -55,10 +62,17 @@ SDK_VERSION_SHA256 = {
 """
     sdk_dic = {}
     for item in items:
-        sdk_dic[item.version.replace("v","")] = {
-            "linux_amd64": item.linux_amd64_checksum,
-            "darwin_amd64": item.darwin_amd64_checksum,
-        }
+        if item.darwin_arm64_checksum:
+            sdk_dic[item.version.replace("v","")] = {
+                "linux_amd64": item.linux_amd64_checksum,
+                "darwin_amd64": item.darwin_amd64_checksum,
+                "darwin_arm64": item.darwin_arm64_checksum,
+            }
+        else:
+            sdk_dic[item.version.replace("v","")] = {
+                "linux_amd64": item.linux_amd64_checksum,
+                "darwin_amd64": item.darwin_amd64_checksum,
+            }
     result += remove_first_line(json.dumps(sdk_dic, indent=4))
     with open("sdk_list.bzl", "w") as f:
         f.write(result)
