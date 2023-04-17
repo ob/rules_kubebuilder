@@ -1,13 +1,17 @@
-load("@rules_kubebuilder//controller-gen:controller-gen-toolchain.bzl", "controller_gen_toolchain")
+load("@rules_kubebuilder//controller-gen:controller-gen-toolchain.bzl", "CONTROLLER_GEN_ARCHES", "CONTROLLER_GEN_VERSIONS", "controller_gen_toolchain")
 load("@rules_pkg//:pkg.bzl", "pkg_tar")
 
-exports_files(
-    [
-        "bin/controller-gen.linux",
-        "bin/controller-gen.darwin",
-    ],
-    visibility = ["//visibility:public"],
-)
+[
+    exports_files(
+        [
+            "bin/controller-gen-%s.linux" % version,
+            "bin/controller-gen-%s.darwin-%s" % (version, arch),
+        ],
+        visibility = ["//visibility:public"],
+    )
+    for version in CONTROLLER_GEN_VERSIONS
+    for arch in CONTROLLER_GEN_ARCHES
+]
 
 filegroup(
     name = "srcs",
@@ -35,36 +39,51 @@ pkg_tar(
     deps = [":release-bin"],
 )
 
-toolchain_type(name = "toolchain")
+toolchain_type(name = "toolchain_type")
 
-controller_gen_toolchain(
-    name = "controller_gen_linux",
-    controller_gen_bin = "@rules_kubebuilder//controller-gen:bin/controller-gen.linux",
-)
+[
+    controller_gen_toolchain(
+        name = "controller_gen_linux_%s" % version,
+        controller_gen_bin = "@rules_kubebuilder//controller-gen:bin/controller-gen-%s.linux" % version,
+    )
+    for version in CONTROLLER_GEN_VERSIONS
+]
 
-controller_gen_toolchain(
-    name = "controller_gen_darwin",
-    controller_gen_bin = "@rules_kubebuilder//controller-gen:bin/controller-gen.darwin",
-)
+[
+    controller_gen_toolchain(
+        name = "controller_gen_darwin_%s_%s" % (version, arch),
+        controller_gen_bin = "@rules_kubebuilder//controller-gen:bin/controller-gen-%s.darwin-%s" % (version, arch),
+    )
+    for version in CONTROLLER_GEN_VERSIONS
+    for arch in CONTROLLER_GEN_ARCHES
+]
 
-toolchain(
-    name = "controller_gen_linux_toolchain",
-    exec_compatible_with = [
-        "@platforms//os:linux",
-        "@platforms//cpu:x86_64",
-    ],
-    toolchain = ":controller_gen_linux",
-    toolchain_type = ":toolchain",
-    visibility = ["//visibility:public"],
-)
+[
+    toolchain(
+        name = "controller_gen_linux_toolchain_%s" % version,
+        exec_compatible_with = [
+            "@platforms//os:linux",
+            "@platforms//cpu:x86_64",
+        ],
+        toolchain = ":controller_gen_linux_%s" % version,
+        toolchain_type = ":toolchain_type",
+        visibility = ["//visibility:public"],
+    )
+    for version in CONTROLLER_GEN_VERSIONS
+    # TODO: Add arm64 support for linux
+]
 
-toolchain(
-    name = "controller_gen_darwin_toolchain",
-    exec_compatible_with = [
-        "@platforms//os:osx",
-        "@platforms//cpu:x86_64",
-    ],
-    toolchain = ":controller_gen_darwin",
-    toolchain_type = ":toolchain",
-    visibility = ["//visibility:public"],
-)
+[
+    toolchain(
+        name = "controller_gen_darwin_toolchain_%s_%s" % (version, arch),
+        exec_compatible_with = [
+            "@platforms//os:osx",
+            "@platforms//cpu:%s" % arch,
+        ],
+        toolchain = ":controller_gen_darwin_%s_%s" % (version, arch),
+        toolchain_type = ":toolchain_type",
+        visibility = ["//visibility:public"],
+    )
+    for version in CONTROLLER_GEN_VERSIONS
+    for arch in CONTROLLER_GEN_ARCHES
+]

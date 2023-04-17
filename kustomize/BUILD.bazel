@@ -1,13 +1,5 @@
-load("@rules_kubebuilder//kustomize:kustomize-toolchain.bzl", "kustomize_toolchain")
 load("@rules_pkg//:pkg.bzl", "pkg_tar")
-
-exports_files(
-    [
-        "bin/kustomize.linux",
-        "bin/kustomize.darwin",
-    ],
-    visibility = ["//visibility:public"],
-)
+load("@rules_kubebuilder//kustomize:kustomize-toolchain.bzl", "ARCH_MAP", "PLATFORM_MAP", "kustomize_toolchain")
 
 filegroup(
     name = "srcs",
@@ -35,36 +27,28 @@ pkg_tar(
     deps = [":release-bin"],
 )
 
-toolchain_type(name = "toolchain")
+toolchain_type(name = "toolchain_type")
 
-kustomize_toolchain(
-    name = "kustomize_linux",
-    kustomize_bin = "@rules_kubebuilder//kustomize:bin/kustomize.linux",
-)
+[
+    kustomize_toolchain(
+        name = "kustomize_toolchain_%s_%s" % (os, arch),
+        kustomize_bin = "@kustomize_%s_%s//:kustomize" % (os, arch),
+    )
+    for os in PLATFORM_MAP.keys()
+    for arch in ARCH_MAP.keys()
+]
 
-kustomize_toolchain(
-    name = "kustomize_darwin",
-    kustomize_bin = "@rules_kubebuilder//kustomize:bin/kustomize.darwin",
-)
-
-toolchain(
-    name = "kustomize_linux_toolchain",
-    exec_compatible_with = [
-        "@platforms//os:linux",
-        "@platforms//cpu:x86_64",
-    ],
-    toolchain = ":kustomize_linux",
-    toolchain_type = ":toolchain",
-    visibility = ["//visibility:public"],
-)
-
-toolchain(
-    name = "kustomize_darwin_toolchain",
-    exec_compatible_with = [
-        "@platforms//os:osx",
-        "@platforms//cpu:x86_64",
-    ],
-    toolchain = ":kustomize_darwin",
-    toolchain_type = ":toolchain",
-    visibility = ["//visibility:public"],
-)
+[
+    toolchain(
+        name = "kustomize_%s_%s_toolchain" % (os, arch),
+        exec_compatible_with = [
+            "@platforms//os:%s" % os,
+            "@platforms//cpu:%s" % arch,
+        ],
+        toolchain = ":kustomize_toolchain_%s_%s" % (os, arch),
+        toolchain_type = ":toolchain_type",
+        visibility = ["//visibility:public"],
+    )
+    for os in PLATFORM_MAP.keys()
+    for arch in ARCH_MAP.keys()
+]
